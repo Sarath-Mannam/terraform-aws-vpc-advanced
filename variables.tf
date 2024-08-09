@@ -71,3 +71,21 @@ variable "database_route_table_tags" {
 variable "db_subnet_group_tags" {
   default = {}
 }
+
+# So as a module developer we have to give an option if the user wants peering with some VPC
+# Here by default I'm setting it to false 
+variable "is_peering_required" {
+  default = false
+}
+
+variable "requester_vpc_id" {
+  
+}
+
+variable "default_route_table_id" {
+  
+}
+
+variable "default_vpc_cidr" {
+  
+}

@@ -68,14 +68,14 @@ resource "aws_subnet" "database" {
   )
 }
 
-# Here I'm creating public route table and adding internet route 
+# Here I'm creating public route table
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
-  }
+  # route {
+  #   cidr_block = "0.0.0.0/0"
+  #   gateway_id = aws_internet_gateway.main.id
+  # }
 
   tags = merge(
     var.common_tags,
@@ -84,6 +84,13 @@ resource "aws_route_table" "public" {
     },
     var.public_route_table_tags
   )
+}
+
+# Always add route seperately, adding internet route 
+resource "aws_route" "public" {
+  route_table_id            = aws_route_table.public.id
+  destination_cidr_block    = "0.0.0.0/0"
+ gateway_id = aws_internet_gateway.main.id
 }
 
 resource "aws_eip" "eip" {
@@ -111,14 +118,14 @@ resource "aws_nat_gateway" "main" {
 }
 
 
-# Here I'm creating private route table and adding NAT Gateway raoute
+# Here I'm creating private route table
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.main.id
-  }
+  # route {
+  #   cidr_block = "0.0.0.0/0"
+  #   nat_gateway_id = aws_nat_gateway.main.id
+  # }
 
   tags = merge(
     var.common_tags,
@@ -129,13 +136,20 @@ resource "aws_route_table" "private" {
   )
 }
 
+# adding NAT Gateway raoute
+resource "aws_route" "private" {
+  route_table_id = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id = aws_nat_gateway.main.id
+}
+
 resource "aws_route_table" "database" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.main.id
-  }
+  # route {
+  #   cidr_block = "0.0.0.0/0"
+  #   nat_gateway_id = aws_nat_gateway.main.id
+  # }
 
   tags = merge(
     var.common_tags,
@@ -144,6 +158,13 @@ resource "aws_route_table" "database" {
     },
     var.database_route_table_tags
   )
+}
+
+# adding NAT Gateway raoute
+resource "aws_route" "database" {
+  route_table_id = aws_route_table.database.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id = aws_nat_gateway.main.id
 }
 
 # Iterating two times because we have two public subnets
